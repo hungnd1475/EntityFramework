@@ -245,6 +245,28 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 Assert.Throws<InvalidOperationException>(() => c.BaseType = b).Message);
         }
 
+        [Fact(Skip ="Issue 1954")]
+        public void Setting_base_type_throws_when_child_and_parent_contain_duplicate_property()
+        {
+            var model = new Model();
+
+            var a = new EntityType(typeof(A), model);
+            a.AddProperty("E", typeof(string));
+            a.AddProperty("G", typeof(string));
+
+            var b = new EntityType(typeof(B), model);
+
+            var c = new EntityType(typeof(C), model);
+            c.AddProperty("E", typeof(string));
+            c.AddProperty("G", typeof(string));
+            c.BaseType = b;
+
+            Assert.Equal(
+                Strings.DuplicatePropertiesOnBase("E, G", typeof(C).FullName, typeof(B).FullName),
+                Assert.Throws<InvalidOperationException>(() => b.BaseType = a).Message);
+        }
+
+
         [Fact]
         public void Can_create_entity_type()
         {
